@@ -1,28 +1,60 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Tray, nativeImage, Menu } = require("electron");
 const path = require("path");
+
+let window, tray;
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  window = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL("http://localhost:3000");
+  window.loadURL("http://localhost:3000");
+  window.on("close", (e) => {
+    if (app.quits) return;
+
+    e.preventDefault();
+    window.hide();
+  });
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  // window.webContents.openDevTools()
+}
+
+function createTray() {
+  // Create tray.
+  const icon = nativeImage.createFromPath(
+    path.join(__dirname, "public/favicon.ico")
+  );
+  tray = new Tray(icon);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Quit",
+      click: () => {
+        app.quits = true;
+        app.quit();
+      },
+    },
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.on("click", () => {
+    if (!window.isVisible()) window.show();
+  });
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  createTray();
   createWindow();
 
   app.on("activate", function () {
