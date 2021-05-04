@@ -9,6 +9,7 @@ import { useAuth } from "../providers/AuthProvider";
 import RoomList from "../components/RoomList";
 import { firestore } from "../lib/firebase";
 import PageContainer from "../components/PageContainer";
+import { useWebRTC } from "../providers/WebRTCProvider";
 
 const Container = styled(PageContainer)`
   display: grid;
@@ -25,12 +26,25 @@ export default function Servers() {
   const [roomId, setRoomId] = useState("");
   const { user } = useAuth();
   const { servers } = user.database;
+  const {
+    localStream,
+    remoteStreams,
+    connected,
+    initStreams,
+    makeOffer,
+    makeAnswer,
+  } = useWebRTC();
 
   useEffect(() => {
     if (!servers.length) return;
 
     handleChangeServer(servers[0].id);
   }, [servers]);
+
+  useEffect(() => {
+    // remove video elements only when we disconnected.
+    if (connected) return;
+  }, [connected]);
 
   async function handleChangeServer(id: string) {
     const server = await firestore.collection("servers").doc(id).get();
@@ -44,6 +58,33 @@ export default function Servers() {
 
   function handleChangeRoom(id: string) {
     setRoomId(id);
+  }
+
+  async function handleJoinVoiceRoom(id: string) {
+    if (connected) return;
+
+    await initStreams();
+    // localStream is set
+    // remoteStreams are empty but ready
+
+    const callDocExists = (await firestore.collection("calls").doc(id).get())
+      .exists;
+    !callDocExists ? await makeOffer(id) : await makeAnswer(id);
+
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.playsInline = true;
+    video.srcObject = localStream.current;
+    document.body.appendChild(video);
+    video.play();
+    // video.remove();
+
+    const video1 = document.createElement("video");
+    video1.srcObject = remoteStreams.current[0];
+    video1.onloadedmetadata = () => {
+      video1.play();
+    };
+    document.body.appendChild(video1);
   }
 
   return (
@@ -67,7 +108,7 @@ export default function Servers() {
               roomId={roomId}
               server={currentServer}
               onTextRoomClick={handleChangeRoom}
-              onVoiceRoomClick={() => console.log("voice room click")}
+              onVoiceRoomClick={handleJoinVoiceRoom}
             />
           </div>
         </>

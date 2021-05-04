@@ -4,11 +4,14 @@ import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import AuthProvider from "./providers/AuthProvider";
+import WebRTCProvider from "./providers/WebRTCProvider";
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthProvider>
-      <App />
+      <WebRTCProvider>
+        <App />
+      </WebRTCProvider>
     </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root")

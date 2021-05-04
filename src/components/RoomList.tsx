@@ -38,6 +38,7 @@ const RoomList: FC<Props> = ({
         <>
           {type === "text" ? (
             <StandardItem
+              key={id}
               text={name}
               icon={FaHashtag}
               active={id === roomId}
@@ -45,7 +46,7 @@ const RoomList: FC<Props> = ({
             />
           ) : (
             type === "voice" && (
-              <div>
+              <div key={id}>
                 <StandardItem
                   text={name}
                   icon={FaVolumeDown}

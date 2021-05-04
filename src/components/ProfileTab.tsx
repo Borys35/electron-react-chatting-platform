@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import { FaCog } from "react-icons/fa";
+import { FaCog, FaPhoneSlash } from "react-icons/fa";
 import { Avatar } from "./Avatar";
 import { useAuth } from "../providers/AuthProvider";
+import { useWebRTC } from "../providers/WebRTCProvider";
 
 const Wrapper = styled.div`
   display: flex;
@@ -11,6 +12,7 @@ const Wrapper = styled.div`
 
 const ServerCard = () => {
   const { user } = useAuth();
+  const { connected, hangUp } = useWebRTC();
 
   return (
     <Wrapper>
@@ -25,6 +27,7 @@ const ServerCard = () => {
       </div>
       <div>
         <FaCog />
+        {connected && <FaPhoneSlash onClick={() => hangUp()} />}
       </div>
     </Wrapper>
   );
