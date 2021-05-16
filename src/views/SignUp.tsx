@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,6 +9,7 @@ import Form from "../components/Form";
 import { auth, firestore } from "../lib/firebase";
 import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Container = styled(PageContainer)`
   display: flex;
@@ -34,6 +35,8 @@ const schema = Yup.object({
 });
 
 export default function SignUp() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -41,28 +44,47 @@ export default function SignUp() {
   } = useForm({ resolver: yupResolver(schema) });
 
   async function onSubmit(data: any) {
+    setLoading(true);
     const { username, email, password } = data;
-    const { user } = await auth.createUserWithEmailAndPassword(email, password);
 
-    if (!user) return;
+    try {
+      const { empty } = await firestore
+        .collection("users")
+        .where("username", "==", username)
+        .get();
+      if (!empty) throw new Error("There is a user with this username");
 
-    await user.updateProfile({
-      displayName: username,
-      photoURL: "https://picsum.photos/seed/picsum/200",
-    });
-    await firestore.collection("users").doc(user.uid).set({
-      username,
-      photoURL: "https://picsum.photos/seed/picsum/200",
-      online: true,
-      friends: [],
-      servers: [],
-    });
+      const { user } = await auth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
+
+      console.log("user", user);
+
+      if (!user) return;
+
+      await user.updateProfile({
+        displayName: username,
+        photoURL: "https://picsum.photos/seed/picsum/200",
+      });
+      await firestore.collection("users").doc(user.uid).set({
+        username,
+        photoURL: "https://picsum.photos/seed/picsum/200",
+        online: true,
+        friends: [],
+        servers: [],
+      });
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
   }
 
   return (
     <Container>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         <h4>Create an account</h4>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <Field
           inputProps={register("username")}
           label="Username"
@@ -85,7 +107,9 @@ export default function SignUp() {
           label="Confirm Password"
           errors={errors.password2}
         />
-        <Button>Sign up</Button>
+        <Button disabled={loading}>
+          {!loading ? "Sign up" : "Proceeding"}
+        </Button>
         <Link to="/sign-in">Sign in instead</Link>
       </StyledForm>
     </Container>

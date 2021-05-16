@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,6 +9,7 @@ import Form from "../components/Form";
 import { auth } from "../lib/firebase";
 import { Link } from "react-router-dom";
 import PageContainer from "../components/PageContainer";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Container = styled(PageContainer)`
   display: flex;
@@ -27,6 +28,8 @@ const schema = Yup.object({
 });
 
 export default function SignIn() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -34,18 +37,22 @@ export default function SignIn() {
   } = useForm({ resolver: yupResolver(schema) });
 
   async function onSubmit(data: any) {
+    setLoading(true);
     const { email, password } = data;
+
     try {
       await auth.signInWithEmailAndPassword(email, password);
     } catch (err) {
-      console.error(err);
+      setError(err.message);
     }
+    setLoading(false);
   }
 
   return (
     <Container>
       <StyledForm onSubmit={handleSubmit(onSubmit)}>
         <h4>Sign in</h4>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         <Field
           inputProps={register("email")}
           label="Your e-mail"
@@ -57,7 +64,9 @@ export default function SignIn() {
           label="Password"
           errors={errors.password}
         />
-        <Button>Sign in</Button>
+        <Button disabled={loading}>
+          {!loading ? "Sign in" : "Proceeding"}
+        </Button>
         <Link to="/sign-up">Sign up instead</Link>
       </StyledForm>
     </Container>

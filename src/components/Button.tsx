@@ -41,7 +41,7 @@ const Button = styled.button<{
   border: none;
   outline: none;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.1s;
 
   &:disabled {
     opacity: 0.6;
