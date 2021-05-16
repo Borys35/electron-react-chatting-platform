@@ -16,6 +16,11 @@ const Container = styled(PageContainer)`
   justify-content: center;
 `;
 
+const StyledForm = styled(Form)`
+  width: min(440px, 100%);
+  padding: 2rem;
+`;
+
 const schema = Yup.object({
   email: Yup.string().required(),
   password: Yup.string().required(),
@@ -33,14 +38,14 @@ export default function SignIn() {
     try {
       await auth.signInWithEmailAndPassword(email, password);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <h5>Create an account</h5>
+      <StyledForm onSubmit={handleSubmit(onSubmit)}>
+        <h4>Sign in</h4>
         <Field
           inputProps={register("email")}
           label="Your e-mail"
@@ -53,8 +58,8 @@ export default function SignIn() {
           errors={errors.password}
         />
         <Button>Sign in</Button>
-        <Link to="sign-in">Sign up instead</Link>
-      </Form>
+        <Link to="/sign-up">Sign up instead</Link>
+      </StyledForm>
     </Container>
   );
 }

@@ -2,6 +2,7 @@ import { FC } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { colors } from "../styles/theme";
+import IconContainer, { IconProps } from "./IconContainer";
 
 interface Props {
   text: string;
@@ -9,12 +10,13 @@ interface Props {
   to?: string;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   active?: boolean;
+  subIcons?: Array<IconProps>;
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
   display: flex;
   align-items: center;
-  padding: 0.75em 1em;
+  padding: 0.65em 1em;
   border-radius: 4px;
   text-decoration: none;
   cursor: pointer;
@@ -38,6 +40,7 @@ const StandardItem: FC<Props> = ({
   onClick,
   text,
   active = false,
+  subIcons,
   ...props
 }) => {
   const Icon: any = icon;
@@ -47,6 +50,9 @@ const StandardItem: FC<Props> = ({
       <Wrapper as={Link} to={to} active={active} {...props}>
         {icon && <Icon size={24} style={{ marginRight: "1rem" }} />}
         <p>{text}</p>
+        {subIcons && (
+          <IconContainer icons={subIcons} style={{ marginLeft: "auto" }} />
+        )}
       </Wrapper>
     );
 
@@ -54,6 +60,9 @@ const StandardItem: FC<Props> = ({
     <Wrapper onClick={onClick} active={active} {...props}>
       {icon && <Icon size={24} style={{ marginRight: "1rem" }} />}
       <p>{text}</p>
+      {subIcons && (
+        <IconContainer icons={subIcons} style={{ marginLeft: "auto" }} />
+      )}
     </Wrapper>
   );
 };

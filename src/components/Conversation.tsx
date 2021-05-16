@@ -7,20 +7,20 @@ import { useForm } from "react-hook-form";
 import Button from "./Button";
 import Input from "./Input";
 import MessageItem from "./MessageItem";
+import InlineForm from "./InlineForm";
 import styled from "styled-components";
+import ListWrapper from "./ListWrapper";
 
 const Container = styled.div`
-  overflow-x: hidden;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 `;
 
-const MessageForm = styled.form`
-  display: flex;
-
-  input {
-    flex: 1;
-    margin-right: 1rem;
-  }
+const MessagesList = styled(ListWrapper)`
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex: 1;
 `;
 
 interface Props {
@@ -29,7 +29,8 @@ interface Props {
 }
 
 const Conversation: FC<Props> = ({ accessId, type }) => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, watch } = useForm();
+  const watchMessage = watch("message");
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -38,7 +39,7 @@ const Conversation: FC<Props> = ({ accessId, type }) => {
     .collection("conversations")
     .where("type", "==", type)
     .where("accessIds", "array-contains", accessId);
-  const [conversations] = useCollectionData(query, { idField: "id" });
+  const [conversations, loading] = useCollectionData(query, { idField: "id" });
   let conversation: any = null;
   if (conversations) {
     if (type === "friends") {
@@ -49,6 +50,10 @@ const Conversation: FC<Props> = ({ accessId, type }) => {
       conversation = conversations[0];
     }
   }
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversation]);
 
   function handleSendMessage({ message }: any) {
     if (inputRef.current) inputRef.current.value = "";
@@ -67,37 +72,57 @@ const Conversation: FC<Props> = ({ accessId, type }) => {
           timestamp: firebase.firestore.Timestamp.now(),
         }),
       });
-
-    scrollRef.current?.scrollIntoView();
   }
+
+  // if (!conversation) return <div>No conversation found</div>;
 
   return (
     <Container>
-      <div>
-        You are currently talking with {accessId}
+      <MessagesList>
         {conversation &&
           conversation.messages.map(
-            ({ text, author, timestamp }: any, index: string) => (
-              <MessageItem
-                key={index}
-                text={text}
-                author={author}
-                timestamp={timestamp}
-              />
-            )
+            ({ text, author, timestamp }: any, index: number) => {
+              let nextMessage = false;
+              const prevMessage = conversation.messages[index - 1];
+              const tenMinutes = 10 * 60;
+              if (
+                prevMessage &&
+                prevMessage.author.uid === author.uid &&
+                timestamp.seconds - prevMessage.timestamp.seconds < tenMinutes
+              )
+                nextMessage = true;
+
+              return (
+                <MessageItem
+                  key={index}
+                  text={text}
+                  author={author}
+                  timestamp={timestamp}
+                  nextMessage={nextMessage}
+                  style={
+                    index !== 0 && !nextMessage
+                      ? { marginTop: "1rem" }
+                      : undefined
+                  }
+                />
+              );
+            }
           )}
-      </div>
-      <div>
-        <MessageForm onSubmit={handleSubmit(handleSendMessage)}>
-          <Input
-            {...register("message")}
-            placeholder="Type a message"
-            ref={inputRef}
-          />
-          <Button>Send</Button>
-        </MessageForm>
         <div ref={scrollRef}></div>
-      </div>
+      </MessagesList>
+      <InlineForm
+        onSubmit={handleSubmit(handleSendMessage)}
+        style={{ marginTop: "1rem" }}
+      >
+        <Input
+          {...register("message", { required: true })}
+          placeholder="Type a message"
+          ref={inputRef}
+          autoComplete="off"
+          disabled={!loading && !conversation}
+        />
+        <Button disabled={!conversation || !watchMessage}>Send</Button>
+      </InlineForm>
     </Container>
   );
 };

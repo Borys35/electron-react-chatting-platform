@@ -11,9 +11,14 @@ interface Props {
   onChange?: Function;
 }
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const Label = styled.label`
   font-size: 1rem;
-  margin-bottom: 0.1em;
+  margin-bottom: 0.2em;
 `;
 
 const Error = styled.span`
@@ -22,11 +27,11 @@ const Error = styled.span`
 
 const Field: FC<Props> = ({ label, inputProps, errors, type = "text" }) => {
   return (
-    <div>
+    <Wrapper>
       <Label>{label}</Label>
       <Input {...inputProps} type={type} />
       {errors && <Error>{errors.message}</Error>}
-    </div>
+    </Wrapper>
   );
 };
 

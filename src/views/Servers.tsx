@@ -4,28 +4,54 @@ import Conversation from "../components/Conversation";
 import ServersList from "../components/ServersList";
 import ProfileTab from "../components/ProfileTab";
 import SectionSelectTab from "../components/SectionSelectTab";
-import { colors } from "../styles/theme";
+import { colors, columnSize } from "../styles/theme";
 import { useAuth } from "../providers/AuthProvider";
 import RoomList from "../components/RoomList";
 import { firestore } from "../lib/firebase";
 import PageContainer from "../components/PageContainer";
 import { useWebRTC } from "../providers/WebRTCProvider";
+import {
+  useCollectionData,
+  useDocumentData,
+} from "react-firebase-hooks/firestore";
+import { useParams } from "react-router";
+import ListWrapper from "../components/ListWrapper";
 
 const Container = styled(PageContainer)`
   display: grid;
-  grid-template-columns: max(200px, 20vw) 1fr max(200px, 20vw);
+  grid-template-columns: ${columnSize} 1fr ${columnSize};
 
   > div {
     padding: 2rem;
   }
 `;
 
+interface ServerProps {
+  name: string;
+  owner: string;
+  photoURL: string;
+  category: string;
+  isPrivate: boolean;
+  members: Array<any>;
+}
+
+interface RoomProps {
+  id: string;
+  name: string;
+  type: string;
+}
+
 export default function Servers() {
-  const [activeId, setActiveId] = useState("");
-  const [currentServer, setCurrentServer] = useState<any>();
+  const { id } = useParams<any>();
   const [roomId, setRoomId] = useState("");
   const { user } = useAuth();
   const { servers } = user.database;
+  const serverQuery = firestore.collection("servers").doc(id);
+  const roomsQuery = serverQuery.collection("rooms");
+  const [server, serverLoading] = useDocumentData<ServerProps>(serverQuery);
+  const [rooms, roomsLoading] = useCollectionData<RoomProps>(roomsQuery, {
+    idField: "id",
+  });
   const {
     localStream,
     remoteStreams,
@@ -35,26 +61,29 @@ export default function Servers() {
     makeAnswer,
   } = useWebRTC();
 
+  // useEffect(() => {
+  //   if (loading || !server?.exists) return setRoomId("");
+  //   if (!server.rooms.length) return setRoomId("");
+  //   setRoomId(server.rooms[0].id);
+  // }, [server]);
+
   useEffect(() => {
-    if (!servers.length) return;
+    if (serverLoading || roomsLoading) return;
+    if (!server || !rooms) return;
+    if (!rooms.length) return setRoomId("");
 
-    handleChangeServer(servers[0].id);
-  }, [servers]);
+    setRoomId(rooms[0].id);
+  }, [server, serverLoading, rooms, roomsLoading]);
 
-  useEffect(() => {
-    // remove video elements only when we disconnected.
-    if (connected) return;
-  }, [connected]);
+  // async function handleChangeServer(id: string) {
+  //   const server = await firestore.collection("servers").doc(id).get();
 
-  async function handleChangeServer(id: string) {
-    const server = await firestore.collection("servers").doc(id).get();
+  //   // setActiveId(id);
+  //   setCurrentServer(server.data());
 
-    setActiveId(id);
-    setCurrentServer(server.data());
-
-    if (server.data()?.rooms.length) setRoomId(server.data()?.rooms[0].id);
-    else setRoomId("");
-  }
+  //   if (server.data()?.rooms.length) setRoomId(server.data()?.rooms[0].id);
+  //   else setRoomId("");
+  // }
 
   function handleChangeRoom(id: string) {
     setRoomId(id);
@@ -64,55 +93,36 @@ export default function Servers() {
     if (connected) return;
 
     await initStreams();
-    // localStream is set
-    // remoteStreams are empty but ready
 
     const callDocExists = (await firestore.collection("calls").doc(id).get())
       .exists;
     !callDocExists ? await makeOffer(id) : await makeAnswer(id);
-
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.playsInline = true;
-    video.srcObject = localStream.current;
-    document.body.appendChild(video);
-    video.play();
-    // video.remove();
-
-    const video1 = document.createElement("video");
-    video1.srcObject = remoteStreams.current[0];
-    video1.onloadedmetadata = () => {
-      video1.play();
-    };
-    document.body.appendChild(video1);
   }
 
   return (
     <Container>
-      <div style={{ borderRight: `1px solid ${colors.background200}` }}>
+      <ListWrapper
+        withSpacers
+        style={{
+          borderRight: `1px solid ${colors.background200}`,
+          height: "100vh",
+        }}
+      >
         <ProfileTab />
         <SectionSelectTab />
-        <ServersList
-          values={servers}
-          onChange={handleChangeServer}
-          activeId={activeId}
+        <ServersList values={servers} activeId={id} />
+      </ListWrapper>
+      <Conversation accessId={roomId} type="textRoom" />
+      <div style={{ borderLeft: `1px solid ${colors.background200}` }}>
+        <RoomList
+          serverId={id}
+          roomId={roomId}
+          isOwner={user.auth.uid === server?.owner}
+          values={rooms ? rooms : []}
+          onTextRoomClick={handleChangeRoom}
+          onVoiceRoomClick={handleJoinVoiceRoom}
         />
       </div>
-      {currentServer && (
-        <>
-          <Conversation accessId={roomId} type="textRoom" />
-          <div style={{ borderLeft: `1px solid ${colors.background200}` }}>
-            <p>SERVER'S ID: {activeId}</p>
-            <RoomList
-              serverId={activeId}
-              roomId={roomId}
-              server={currentServer}
-              onTextRoomClick={handleChangeRoom}
-              onVoiceRoomClick={handleJoinVoiceRoom}
-            />
-          </div>
-        </>
-      )}
     </Container>
   );
 }

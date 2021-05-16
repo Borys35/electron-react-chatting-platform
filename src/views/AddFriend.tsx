@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { FaCheckSquare, FaMinusSquare } from "react-icons/fa";
 import { useForm } from "react-hook-form";
@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import Form from "../components/Form";
+import InlineForm from "../components/InlineForm";
 import { firestore } from "../lib/firebase";
 import ListWrapper from "../components/ListWrapper";
 import ItemWithImage from "../components/ItemWithImage";
@@ -15,12 +15,25 @@ import firebase from "firebase";
 import ProfileTab from "../components/ProfileTab";
 import SectionSelectTab from "../components/SectionSelectTab";
 import FriendsList from "../components/FriendsList";
-import { colors } from "../styles/theme";
+import { colors, columnSize } from "../styles/theme";
 import PageContainer from "../components/PageContainer";
+import { useFriendsServers } from "../providers/FriendsServersProvider";
+
+interface UserProps {
+  uid: string;
+  username: string;
+  photoURL: string;
+}
+
+interface RequestProps {
+  id: string;
+  from: UserProps;
+  to: UserProps;
+}
 
 const Container = styled(PageContainer)`
   display: grid;
-  grid-template-columns: max(240px, 20vw) 1fr;
+  grid-template-columns: ${columnSize} 1fr;
 
   > div {
     padding: 2rem;
@@ -31,41 +44,59 @@ const Wrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr;
+  gap: 2rem;
 `;
 
 export default function AddFriend() {
-  const history = useHistory();
+  const [error, setError] = useState("");
   const { register, handleSubmit } = useForm();
   const { user } = useAuth();
   const { friends } = user.database;
+  const { changeCurrentFriend } = useFriendsServers();
 
   const pendingQuery = firestore
     .collection("friendRequests")
-    .where("fromId", "==", user.auth.uid);
-  const [pendingValues] = useCollectionData(pendingQuery, { idField: "id" });
+    .where("from.uid", "==", user.auth.uid);
+  const [pendingValues] = useCollectionData<RequestProps>(pendingQuery, {
+    idField: "id",
+  });
 
   const incomingQuery = firestore
     .collection("friendRequests")
-    .where("toId", "==", user.auth.uid);
-  const [incomingValues] = useCollectionData(incomingQuery, { idField: "id" });
+    .where("to.uid", "==", user.auth.uid);
+  const [incomingValues] = useCollectionData<RequestProps>(incomingQuery, {
+    idField: "id",
+  });
 
-  async function handleSendRequest({ username }: any) {
+  async function handleSendRequest({ username }: UserProps) {
     const querySnapshot = await firestore
       .collection("users")
       .where("username", "==", username)
       .get();
     const foundUser = querySnapshot.docs[0];
 
-    if (!foundUser) return;
+    if (!foundUser) return setError("User not found");
+    else if (
+      pendingValues?.find(({ to }) => to.uid === foundUser.id) ||
+      incomingValues?.find(({ from }) => from.uid === foundUser.id)
+    )
+      return setError("Request already exists");
+    else if (friends.find((f: UserProps) => f.uid === foundUser.id))
+      return setError("You are already friends");
+    else if (user.auth.uid === foundUser.id)
+      return setError("You cannot invite yourself you dummy...");
+    setError("");
+
+    // SKIP IF WE ARE ALREADY FRIENDS
 
     firestore.collection("friendRequests").add({
-      fromId: user.auth.uid,
-      fromUser: {
+      from: {
+        uid: user.auth.uid,
         username: user.database.username,
         photoURL: user.database.photoURL,
       },
-      toId: foundUser.id,
-      toUser: {
+      to: {
+        uid: foundUser.id,
         username: foundUser.data().username,
         photoURL: foundUser.data().photoURL,
       },
@@ -78,105 +109,115 @@ export default function AddFriend() {
 
   function acceptRequest(
     id: string,
-    fromId: string,
-    fromUser: any,
-    toId: string,
-    toUser: any
+    from: UserProps, // new friend
+    to: UserProps // me
   ) {
     firestore.collection("friendRequests").doc(id).delete();
     firestore
       .collection("users")
-      .doc(fromId)
+      .doc(from.uid)
       .update({
         friends: firebase.firestore.FieldValue.arrayUnion({
-          uid: toId,
-          ...toUser,
+          ...to,
         }),
       });
     firestore
       .collection("users")
-      .doc(toId)
+      .doc(to.uid)
       .update({
         friends: firebase.firestore.FieldValue.arrayUnion({
-          uid: fromId,
-          ...fromUser,
+          ...from,
         }),
       });
     firestore.collection("conversations").add({
       type: "friends",
-      accessIds: [fromId, toId],
+      accessIds: [from.uid, to.uid],
       messages: [],
     });
+
+    changeCurrentFriend(from.uid);
   }
 
   return (
     <Container>
-      <div style={{ borderRight: `1px solid ${colors.background200}` }}>
+      <ListWrapper
+        withSpacers
+        style={{ borderRight: `1px solid ${colors.background200}` }}
+      >
         <ProfileTab />
         <SectionSelectTab />
-        <FriendsList
-          values={friends}
-          onChange={(uid: string) => history.push(`/friends?id=${uid}`)}
-        />
-      </div>
+        <FriendsList values={friends} />
+      </ListWrapper>
       <Wrapper>
-        <Form
-          onSubmit={handleSubmit(handleSendRequest)}
-          style={{ gridColumn: "1 / 3" }}
-        >
-          <Input
-            placeholder="Enter a username"
-            {...register("username", { required: true })}
-          />
-          <Button>Send request</Button>
-        </Form>
+        <div style={{ gridColumn: "1 / 3" }}>
+          <InlineForm onSubmit={handleSubmit(handleSendRequest)}>
+            <Input
+              placeholder="Enter a username"
+              {...register("username")}
+              autoComplete="off"
+            />
+            <Button>Send request</Button>
+          </InlineForm>
+          {error && <span>{error}</span>}
+        </div>
         <ListWrapper>
           <h5>Pending</h5>
-          {pendingValues?.length
-            ? pendingValues.map(({ id, toUser }: any) => (
+          {pendingValues?.length ? (
+            pendingValues.map(
+              ({ id, to: { uid, username, photoURL } }: RequestProps) => (
                 <ItemWithImage
-                  key={id}
-                  imageSrc={toUser.photoURL}
-                  text={toUser.username}
-                  buttons={[
+                  key={uid}
+                  imageSrc={photoURL}
+                  text={username}
+                  subIcons={[
                     {
-                      icon: FaMinusSquare,
+                      iconComponent: FaMinusSquare,
                       onClick: () => {
                         rejectRequest(id);
                       },
                     },
                   ]}
                 />
-              ))
-            : "No pending requests"}
+              )
+            )
+          ) : (
+            <p>No pending requests</p>
+          )}
         </ListWrapper>
         <ListWrapper>
           <h5>Incoming</h5>
-          {incomingValues?.length
-            ? incomingValues.map(
-                ({ id, fromId, fromUser, toId, toUser }: any) => (
-                  <ItemWithImage
-                    key={id}
-                    imageSrc={fromUser.photoURL}
-                    text={fromUser.username}
-                    buttons={[
-                      {
-                        icon: FaCheckSquare,
-                        onClick: () => {
-                          acceptRequest(id, fromId, fromUser, toId, toUser);
-                        },
+          {incomingValues?.length ? (
+            incomingValues.map(
+              ({
+                id,
+                from,
+                from: { uid, username, photoURL },
+                to,
+              }: RequestProps) => (
+                <ItemWithImage
+                  key={uid}
+                  imageSrc={photoURL}
+                  text={username}
+                  subIcons={[
+                    {
+                      iconComponent: FaCheckSquare,
+                      onClick: () => {
+                        acceptRequest(id, from, to);
                       },
-                      {
-                        icon: FaMinusSquare,
-                        onClick: () => {
-                          rejectRequest(id);
-                        },
+                    },
+                    {
+                      iconComponent: FaMinusSquare,
+                      onClick: () => {
+                        rejectRequest(id);
                       },
-                    ]}
-                  />
-                )
+                    },
+                  ]}
+                />
               )
-            : "No incoming requests"}
+            )
+          ) : (
+            <p>No incoming requests</p>
+          )}
         </ListWrapper>
       </Wrapper>
     </Container>

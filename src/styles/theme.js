@@ -1,6 +1,7 @@
 export const colors = {
   background50: "#1C1D29",
-  background100: "#242635",
+  background100: "#202230",
+  background150: "#2A2B3D",
   background200: "#3A3B4F",
   grey: "#6B6B6B",
   lightGrey: "#9E9E9E",
@@ -10,16 +11,24 @@ export const colors = {
   blue: "#1297E1",
   red: "#E11E12",
   primary: "#AA81FF",
+  primaryHover: "#BFA0FF",
 };
 
+// 'Ubuntu', sans-serif
 export const fontFamilies = {
-  heading: "'Ubuntu', sans-serif",
-  body: "'Ubuntu', sans-serif",
+  heading: "'Poppins', sans-serif",
+  body: "'Poppins', sans-serif",
 };
+
+export const modalCloseTimeoutMS = 200;
+
+export const columnSize = "max(20rem, 20vw)";
 
 const theme = {
   colors,
   fontFamilies,
+  modalCloseTimeoutMS,
+  columnSize,
 };
 
 export default theme;

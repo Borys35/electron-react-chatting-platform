@@ -4,18 +4,25 @@ import ItemWithImage from "./ItemWithImage";
 import ListWrapper from "./ListWrapper";
 import StandardItem from "./StandardItem";
 import AddServerModal from "./AddServerModal";
+import { useFriendsServers } from "../providers/FriendsServersProvider";
+import styled from "styled-components";
+
+const List = styled(ListWrapper)`
+  overflow-x: hidden;
+  overflow-y: auto;
+`;
 
 interface Props {
   values: Array<object>;
-  onChange: Function;
   activeId: string;
 }
 
-const ServersList: FC<Props> = ({ values, onChange, activeId }) => {
+const ServersList: FC<Props> = ({ values, activeId }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { changeCurrentServer } = useFriendsServers();
 
   return (
-    <ListWrapper>
+    <List>
       <StandardItem
         text="Add Server"
         icon={FaPlus}
@@ -27,11 +34,15 @@ const ServersList: FC<Props> = ({ values, onChange, activeId }) => {
           imageSrc={photoURL}
           text={name}
           active={id === activeId}
-          onClick={() => onChange(id)}
+          onClick={() => changeCurrentServer(id)}
         />
       ))}
-      <AddServerModal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} />
-    </ListWrapper>
+      <AddServerModal
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}
+        onAfterAdd={(id: string) => changeCurrentServer(id)}
+      />
+    </List>
   );
 };
 

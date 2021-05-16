@@ -1,17 +1,40 @@
 import React, {
   createContext,
   FC,
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
+import firebase from "firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDocumentData } from "react-firebase-hooks/firestore";
 import { auth, firestore } from "../lib/firebase";
 
+declare global {
+  interface Window {
+    unloading: boolean;
+  }
+}
+
+interface AuthUser {
+  uid: string;
+  displayName: string;
+  photoURL: string;
+}
+
+interface DatabaseUser {
+  username: string;
+  photoURL: string;
+  online: boolean;
+  friends: Array<any>;
+  servers: Array<any>;
+}
+
 interface ContextProps {
   loading: boolean;
-  user: any | null;
+  user: { auth: firebase.User; database: DatabaseUser };
+  signOut: Function;
 }
 
 const AuthContext = createContext({} as ContextProps);
@@ -26,14 +49,55 @@ const AuthProvider: FC = ({ children }) => {
       .collection("users")
       .doc(auth.currentUser ? auth.currentUser.uid : "empty-path")
   );
-  const loading = authLoading && databaseLoading;
+  const [loading, setLoading] = useState(true);
+  // const loading = authLoading || databaseLoading;
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    if (!authUser || !databaseUser) return setUser(null);
+    if (authLoading || databaseLoading) return;
 
-    setUser({ auth: authUser, database: databaseUser });
-  }, [authUser, databaseUser]);
+    if (!authUser || !databaseUser) setUser(null);
+    else {
+      // firestore.collection("users").doc(authUser.uid).update({ online: true });
+      setUser({ auth: authUser, database: databaseUser });
+    }
+
+    setLoading(false);
+
+    // return () => {
+    //   if (!authUser) return;
+
+    //   firestore.collection("users").doc(authUser.uid).update({ online: false });
+    // };
+  }, [authUser, authLoading, databaseUser, databaseLoading]);
+
+  // function setOnline(online: boolean) {
+  //   firestore.collection("users").doc(user.auth.uid).update({ online });
+  // }
+
+  const setOnline = useCallback(
+    (online: boolean) => {
+      if (user)
+        firestore.collection("users").doc(user.auth.uid).update({ online });
+    },
+    [user]
+  );
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!window.unloading) setOnline(true);
+
+    window.onbeforeunload = () => {
+      window.unloading = true;
+      setOnline(false);
+    };
+  }, [loading, setOnline]);
+
+  function signOut() {
+    setOnline(false);
+    auth.signOut();
+  }
 
   // useEffect(() => {
   //   const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -52,6 +116,7 @@ const AuthProvider: FC = ({ children }) => {
   const value = {
     loading,
     user,
+    signOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

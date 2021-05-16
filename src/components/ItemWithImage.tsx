@@ -2,6 +2,7 @@ import { FC } from "react";
 import styled from "styled-components";
 import { colors } from "../styles/theme";
 import { Avatar } from "./Avatar";
+import IconContainer, { IconProps } from "./IconContainer";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   imageSrc: string;
@@ -10,16 +11,16 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   subtext?: string;
   showStatus?: boolean;
   online?: boolean;
-  buttons?: Array<object>;
+  subIcons?: Array<IconProps>;
 }
 
-const Wrapper = styled.div<{ active: boolean }>`
+const Wrapper = styled.div<{ active: boolean; onClick: any }>`
   display: flex;
   align-items: center;
-  padding: 0.75em 1em;
+  padding: 0.55em 1em;
   border-radius: 4px;
   text-decoration: none;
-  cursor: pointer;
+  cursor: ${({ onClick }) => (onClick ? "pointer" : "default")};
   background-color: ${({ active }) =>
     active ? colors.background100 : "transparent"};
   color: ${({ active }) => (active ? colors.primary : "unset")};
@@ -41,6 +42,18 @@ const Subtext = styled.p`
   margin-top: 0.4rem;
 `;
 
+// const ButtonsWrapper = styled.div`
+//   margin-left: auto;
+
+//   > * {
+//     margin-right: 0.3rem;
+
+//     &:last-child {
+//       margin-right: 0;
+//     }
+//   }
+// `;
+
 const ItemWithImage: FC<Props> = ({
   imageSrc,
   text,
@@ -49,13 +62,13 @@ const ItemWithImage: FC<Props> = ({
   subtext,
   showStatus,
   online,
-  buttons,
+  subIcons,
   ...props
 }) => {
   return (
     <Wrapper onClick={onClick} active={active} {...props}>
       <StyledAvatar
-        size="md"
+        size="sm"
         imageSrc={imageSrc}
         showStatus={showStatus}
         online={online}
@@ -64,13 +77,8 @@ const ItemWithImage: FC<Props> = ({
         <p>{text}</p>
         {subtext && <Subtext>{subtext}</Subtext>}
       </div>
-      {buttons && (
-        <div>
-          {buttons.map(({ icon, onClick }: any) => {
-            const Icon = icon;
-            return <Icon onClick={onClick} />;
-          })}
-        </div>
+      {subIcons && (
+        <IconContainer icons={subIcons} style={{ marginLeft: "auto" }} />
       )}
     </Wrapper>
   );

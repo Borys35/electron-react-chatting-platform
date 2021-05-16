@@ -1,18 +1,19 @@
 import { FC } from "react";
 import { FaPlus } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import ItemWithImage from "./ItemWithImage";
 import ListWrapper from "./ListWrapper";
 import StandardItem from "./StandardItem";
+import { useFriendsServers } from "../providers/FriendsServersProvider";
 
 interface Props {
   values: Array<object>;
-  onChange: Function;
   activeUid?: string;
 }
 
-const FriendsList: FC<Props> = ({ values, onChange, activeUid }) => {
+const FriendsList: FC<Props> = ({ values, activeUid }) => {
   const { pathname } = useLocation();
+  const { changeCurrentFriend } = useFriendsServers();
 
   return (
     <ListWrapper>
@@ -23,12 +24,13 @@ const FriendsList: FC<Props> = ({ values, onChange, activeUid }) => {
         active={pathname === "/add-friend"}
       />
       {values.map(({ uid, username, photoURL }: any) => (
+        // changeCurrentFriend
         <ItemWithImage
           key={uid}
           imageSrc={photoURL}
           text={username}
           active={uid === activeUid}
-          onClick={() => onChange(uid)}
+          onClick={() => changeCurrentFriend(uid)}
         />
       ))}
     </ListWrapper>

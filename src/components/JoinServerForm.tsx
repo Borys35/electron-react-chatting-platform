@@ -5,49 +5,25 @@ import Button from "./Button";
 import { firestore } from "../lib/firebase";
 import firebase from "firebase";
 import { useAuth } from "../providers/AuthProvider";
+import joinServer from "../utils/joinServer";
+import { FC } from "react";
 
-const JoinServerForm = () => {
+interface Props {
+  onAfterAdd?: Function;
+}
+
+const JoinServerForm: FC<Props> = ({ onAfterAdd = () => {} }) => {
   const { user } = useAuth();
   const { register, handleSubmit } = useForm();
 
-  const textId = firestore.collection("custom-id").doc().id;
-  console.log("yr", textId);
-
   async function handleJoin({ id }: any) {
-    const doc = firestore.collection("servers").doc(id);
-    if (!doc) return;
-
-    const serverData = (await doc.get()).data();
-    console.log("sdsds", serverData);
-
-    if (!serverData) return;
-
-    console.log("dssds");
-
-    await firestore
-      .collection("servers")
-      .doc(id)
-      .update({
-        members: firebase.firestore.FieldValue.arrayUnion({
-          id: user.auth.uid,
-          username: user.database.username,
-          photoURL: user.database.photoURL,
-        }),
-      });
-    await firestore
-      .collection("users")
-      .doc(user.auth.uid)
-      .update({
-        servers: firebase.firestore.FieldValue.arrayUnion({
-          id,
-          name: serverData.name,
-          photoURL: serverData.photoURL,
-        }),
-      });
+    joinServer(id, user);
+    onAfterAdd(id);
   }
 
   return (
     <Form onSubmit={handleSubmit(handleJoin)}>
+      <h6>Join Server</h6>
       <Field label="Server's ID" inputProps={register("id")} />
       <Button>Join</Button>
     </Form>

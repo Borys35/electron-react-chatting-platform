@@ -7,6 +7,8 @@ import Field from "./Field";
 import Form from "./Form";
 import { firestore } from "../lib/firebase";
 import firebase from "firebase";
+import createRoom from "../utils/createRoom";
+import theme from "../styles/theme";
 
 interface Props {
   isOpen: boolean;
@@ -24,26 +26,15 @@ const CreateRoomModal: FC<Props> = ({
   const { handleSubmit, register } = useForm();
 
   function handleCreate({ name, type }: any) {
-    const id = firestore.collection("generate-id").doc().id;
-    firestore
-      .collection("servers")
-      .doc(serverId)
-      .update({
-        rooms: firebase.firestore.FieldValue.arrayUnion({
-          id,
-          name,
-          type,
-        }),
-      });
-    firestore.collection("conversations").add({
-      type: "textRoom",
-      accessIds: [id],
-      messages: [],
-    });
+    createRoom(serverId, name, type);
   }
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={() => onRequestClose()}>
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={() => onRequestClose()}
+      closeTimeoutMS={theme.modalCloseTimeoutMS}
+    >
       <Container>
         <Form onSubmit={handleSubmit(handleCreate)}>
           <Field label="Name" inputProps={register("name")} />

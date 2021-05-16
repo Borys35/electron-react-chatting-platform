@@ -5,7 +5,7 @@ import { colors } from "../styles/theme";
 interface Props {
   showStatus?: boolean;
   online?: boolean;
-  size: "md" | "lg";
+  size: "sm" | "md" | "lg";
   imageSrc: string;
 }
 
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const Image = styled.img<{ size: "md" | "lg" }>`
+const Image = styled.img<{ size: "sm" | "md" | "lg" }>`
   border-radius: 50%;
   width: ${(props) => {
     switch (props.size) {
@@ -21,6 +21,8 @@ const Image = styled.img<{ size: "md" | "lg" }>`
         return "50px";
       case "md":
         return "42px";
+      case "sm":
+        return "34px";
     }
   }};
   height: ${(props) => {
@@ -29,6 +31,8 @@ const Image = styled.img<{ size: "md" | "lg" }>`
         return "50px";
       case "md":
         return "42px";
+      case "sm":
+        return "34px";
     }
   }};
 `;

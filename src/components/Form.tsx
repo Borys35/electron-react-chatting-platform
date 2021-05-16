@@ -6,6 +6,14 @@ const Form = styled.form`
 
   > * {
     margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  > button {
+    margin-top: 0.5rem;
   }
 `;
 

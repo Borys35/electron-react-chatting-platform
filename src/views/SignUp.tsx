@@ -16,6 +16,11 @@ const Container = styled(PageContainer)`
   justify-content: center;
 `;
 
+const StyledForm = styled(Form)`
+  width: min(440px, 100%);
+  padding: 2rem;
+`;
+
 const schema = Yup.object({
   username: Yup.string().required(),
   email: Yup.string().email().required(),
@@ -48,6 +53,7 @@ export default function SignUp() {
     await firestore.collection("users").doc(user.uid).set({
       username,
       photoURL: "https://picsum.photos/seed/picsum/200",
+      online: true,
       friends: [],
       servers: [],
     });
@@ -55,8 +61,8 @@ export default function SignUp() {
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <h5>Create an account</h5>
+      <StyledForm onSubmit={handleSubmit(onSubmit)}>
+        <h4>Create an account</h4>
         <Field
           inputProps={register("username")}
           label="Username"
@@ -80,8 +86,8 @@ export default function SignUp() {
           errors={errors.password2}
         />
         <Button>Sign up</Button>
-        <Link to="sign-in">Sign in instead</Link>
-      </Form>
+        <Link to="/sign-in">Sign in instead</Link>
+      </StyledForm>
     </Container>
   );
 }
