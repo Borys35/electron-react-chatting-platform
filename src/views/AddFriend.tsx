@@ -18,6 +18,7 @@ import FriendsList from "../components/FriendsList";
 import { colors, columnSize } from "../styles/theme";
 import PageContainer from "../components/PageContainer";
 import { useFriendsServers } from "../providers/FriendsServersProvider";
+import ErrorMessage from "../components/ErrorMessage";
 
 interface UserProps {
   uid: string;
@@ -158,7 +159,9 @@ export default function AddFriend() {
             />
             <Button>Send request</Button>
           </InlineForm>
-          {error && <span>{error}</span>}
+          {error && (
+            <ErrorMessage style={{ marginTop: "0.5rem" }}>{error}</ErrorMessage>
+          )}
         </div>
         <ListWrapper>
           <h5>Pending</h5>

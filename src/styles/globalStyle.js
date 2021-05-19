@@ -40,6 +40,10 @@ const GlobalStyle = createGlobalStyle`
     color: ${theme.colors.white};
   }
 
+  textarea { 
+    font-family: ${theme.fontFamilies.body};
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: ${theme.fontFamilies.heading};
   }

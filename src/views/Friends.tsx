@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
+import { FaPhone } from "react-icons/fa";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import Button from "../components/Button";
@@ -9,6 +10,7 @@ import ListWrapper from "../components/ListWrapper";
 import PageContainer from "../components/PageContainer";
 import ProfileTab from "../components/ProfileTab";
 import SectionSelectTab from "../components/SectionSelectTab";
+import Tab from "../components/Tab";
 import { useAuth } from "../providers/AuthProvider";
 import { useFriendsServers } from "../providers/FriendsServersProvider";
 import { colors, columnSize } from "../styles/theme";
@@ -28,6 +30,7 @@ export default function Friends() {
   // const [activeUid, setActiveUid] = useState("");
   const { user } = useAuth();
   const { friends } = user.database;
+  const friend = friends.find((f: any) => f.uid === uid);
 
   // useEffect(() => {
   //   if (!friends.length) return;
@@ -49,7 +52,14 @@ export default function Friends() {
         <SectionSelectTab />
         <FriendsList values={friends} activeUid={uid} />
       </ListWrapper>
-      <Conversation accessId={uid} type="friends" />
+      <ListWrapper withSpacers>
+        <Tab
+          avatarProps={{ imageSrc: friend.photoURL, size: "md" }}
+          name={friend.username}
+          icons={[{ iconComponent: FaPhone, onClick: () => {} }]}
+        />
+        <Conversation accessId={uid} type="friends" style={{ flex: "1" }} />
+      </ListWrapper>
     </Container>
   );
 }

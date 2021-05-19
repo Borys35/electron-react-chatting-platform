@@ -37,8 +37,15 @@ const CreateRoomModal: FC<Props> = ({
     >
       <Container>
         <Form onSubmit={handleSubmit(handleCreate)}>
-          <Field label="Name" inputProps={register("name")} />
-          <Field label="Type" inputProps={register("type")} />
+          <h6>Create Room</h6>
+          <Field
+            label="Name"
+            inputProps={register("name", { required: true })}
+          />
+          <Field label="Type" type="select" inputProps={register("type")}>
+            <option value="text">Text</option>
+            <option value="voice">Voice</option>
+          </Field>
           <Button>Create</Button>
         </Form>
       </Container>

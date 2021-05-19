@@ -6,6 +6,7 @@ import { useWebRTC } from "../providers/WebRTCProvider";
 import { useState } from "react";
 import ProfileModal from "./ProfileModal";
 import IconContainer from "./IconContainer";
+import Tab from "./Tab";
 
 const Container = styled.div`
   display: flex;
@@ -31,8 +32,24 @@ const ProfileTab = () => {
   const { connected, hangUp } = useWebRTC();
 
   return (
-    <Container>
-      <Wrapper>
+    <div>
+      <Tab
+        name={user.database.username}
+        avatarProps={{
+          imageSrc: user.database.photoURL,
+          showStatus: true,
+          online: true,
+        }}
+        icons={[
+          {
+            iconComponent: FaPhoneSlash,
+            onClick: () => hangUp(),
+            show: connected,
+          },
+          { iconComponent: FaCog, onClick: () => setIsOpen(true) },
+        ]}
+      />
+      {/* <Wrapper>
         <Avatar
           imageSrc={user.database.photoURL}
           size="md"
@@ -50,13 +67,9 @@ const ProfileTab = () => {
           },
           { iconComponent: FaCog, onClick: () => setIsOpen(true) },
         ]}
-      />
-      {/* <div>
-        <FaCog onClick={() => setIsOpen(true)} size={20} />
-        {connected && <FaPhoneSlash onClick={() => hangUp()} size={20} />}
-      </div> */}
+      /> */}
       <ProfileModal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} />
-    </Container>
+    </div>
   );
 };
 

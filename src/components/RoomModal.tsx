@@ -34,7 +34,12 @@ const RoomModal: FC<Props> = ({
   onDelete,
 }) => {
   const { user, signOut } = useAuth();
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   return (
     <Modal
@@ -51,7 +56,11 @@ const RoomModal: FC<Props> = ({
             borderBottom: `1px solid ${theme.colors.background200}`,
           }}
         >
-          <Field label={"Room name"} inputProps={register("name")} />
+          <Field
+            label={"Room name"}
+            inputProps={register("name", { required: true })}
+            errors={errors.name}
+          />
           <Button>Update</Button>
         </Form>
         <div>

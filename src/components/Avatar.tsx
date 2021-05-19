@@ -2,21 +2,21 @@ import React, { FC } from "react";
 import styled from "styled-components";
 import { colors } from "../styles/theme";
 
-interface Props {
+export interface AvatarProps {
+  imageSrc: string;
   showStatus?: boolean;
   online?: boolean;
-  size: "sm" | "md" | "lg";
-  imageSrc: string;
+  size?: "sm" | "md" | "lg";
 }
 
 const Wrapper = styled.div`
   position: relative;
 `;
 
-const Image = styled.img<{ size: "sm" | "md" | "lg" }>`
+const Image = styled.img<{ size?: "sm" | "md" | "lg" }>`
   border-radius: 50%;
-  width: ${(props) => {
-    switch (props.size) {
+  width: ${({ size = "sm" }) => {
+    switch (size) {
       case "lg":
         return "50px";
       case "md":
@@ -25,8 +25,8 @@ const Image = styled.img<{ size: "sm" | "md" | "lg" }>`
         return "34px";
     }
   }};
-  height: ${(props) => {
-    switch (props.size) {
+  height: ${({ size = "sm" }) => {
+    switch (size) {
       case "lg":
         return "50px";
       case "md":
@@ -47,7 +47,7 @@ const StatusDot = styled.div`
   border-radius: 50%;
 `;
 
-export const Avatar: FC<Props> = ({
+export const Avatar: FC<AvatarProps> = ({
   showStatus = false,
   online = false,
   size,

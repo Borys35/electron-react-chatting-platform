@@ -128,22 +128,24 @@ export default function Communities() {
       <GridWrapper>
         <Grid>
           {servers.length ? (
-            servers.map(({ id, name, photoURL, members, users }: any) => {
-              return (
-                <ServerCard
-                  key={id}
-                  id={id}
-                  name={name}
-                  description="Nulla pharetra diam sit amet nisl suscipit adipiscing. Hac habitasse platea dictumst vestibulum rhoncus est pellentesque elit ullamcorper. At varius vel pharetra vel turpis nunc. Elementum eu facilisis sed odio morbi quis commodo odio."
-                  photoURL={photoURL}
-                  joined={Boolean(
-                    members.find((m: any) => m.uid === user.auth.uid)
-                  )}
-                  usersCount={users.length}
-                  onlineCount={users.filter((u: any) => u.online).length}
-                />
-              );
-            })
+            servers.map(
+              ({ id, name, description, photoURL, members, users }: any) => {
+                return (
+                  <ServerCard
+                    key={id}
+                    id={id}
+                    name={name}
+                    description={description}
+                    photoURL={photoURL}
+                    joined={Boolean(
+                      members.find((m: any) => m.uid === user.auth.uid)
+                    )}
+                    usersCount={users.length}
+                    onlineCount={users.filter((u: any) => u.online).length}
+                  />
+                );
+              }
+            )
           ) : (
             <div>No servers found here</div>
           )}

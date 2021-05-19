@@ -81,7 +81,7 @@ const ServerCard: FC<Props> = ({
       </div>
       <div>
         <h5>{name}</h5>
-        <Description>{description}</Description>
+        <Description>{description || "No description added"}</Description>
         <Stats>
           <p>
             USERS:{" "}

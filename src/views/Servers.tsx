@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FaInfo } from "react-icons/fa";
 import styled from "styled-components";
 import Conversation from "../components/Conversation";
 import ServersList from "../components/ServersList";
@@ -16,6 +17,7 @@ import {
 } from "react-firebase-hooks/firestore";
 import { useParams } from "react-router";
 import ListWrapper from "../components/ListWrapper";
+import Tab from "../components/Tab";
 
 const Container = styled(PageContainer)`
   display: grid;
@@ -112,7 +114,18 @@ export default function Servers() {
         <SectionSelectTab />
         <ServersList values={servers} activeId={id} />
       </ListWrapper>
-      <Conversation accessId={roomId} type="textRoom" />
+      <ListWrapper withSpacers>
+        {server && (
+          <>
+            <Tab
+              avatarProps={{ imageSrc: server.photoURL, size: "md" }}
+              name={server.name}
+              icons={[{ iconComponent: FaInfo, onClick: () => {} }]}
+            />
+            <Conversation accessId={roomId} type="textRoom" />
+          </>
+        )}
+      </ListWrapper>
       <div style={{ borderLeft: `1px solid ${colors.background200}` }}>
         <RoomList
           serverId={id}

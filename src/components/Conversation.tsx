@@ -1,4 +1,10 @@
-import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
+import React, {
+  FC,
+  HTMLAttributes,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import firebase from "firebase";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { firestore } from "../lib/firebase";
@@ -14,22 +20,22 @@ import ListWrapper from "./ListWrapper";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  flex: 1;
 `;
 
 const MessagesList = styled(ListWrapper)`
   overflow-x: hidden;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 0 0;
 `;
 
-interface Props {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   accessId: string;
   type: string;
 }
 
-const Conversation: FC<Props> = ({ accessId, type }) => {
-  const { register, handleSubmit, watch } = useForm();
+const Conversation: FC<Props> = ({ accessId, type, ...props }) => {
+  const { register, handleSubmit, watch, reset } = useForm();
   const watchMessage = watch("message");
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +62,9 @@ const Conversation: FC<Props> = ({ accessId, type }) => {
   }, [conversation]);
 
   function handleSendMessage({ message }: any) {
-    if (inputRef.current) inputRef.current.value = "";
+    if (inputRef.current && inputRef.current.value) inputRef.current.value = "";
+
+    reset();
 
     firestore
       .collection("conversations")
@@ -74,12 +82,13 @@ const Conversation: FC<Props> = ({ accessId, type }) => {
       });
   }
 
-  // if (!conversation) return <div>No conversation found</div>;
+  if (!conversation) return <div>No conversation found</div>;
 
   return (
-    <Container>
+    <Container {...props}>
       <MessagesList>
-        {conversation &&
+        {!loading &&
+          conversation &&
           conversation.messages.map(
             ({ text, author, timestamp }: any, index: number) => {
               let nextMessage = false;
