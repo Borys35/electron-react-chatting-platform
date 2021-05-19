@@ -13,9 +13,13 @@ import Checkbox from "./Checkbox";
 
 interface Props {
   onAfterAdd?: Function;
+  onClose?: Function;
 }
 
-const CreateServerForm: FC<Props> = ({ onAfterAdd = () => {} }) => {
+const CreateServerForm: FC<Props> = ({
+  onAfterAdd = () => {},
+  onClose = () => {},
+}) => {
   const { user } = useAuth();
   const { uid } = user.auth;
   const { username, photoURL } = user.database;
@@ -43,6 +47,7 @@ const CreateServerForm: FC<Props> = ({ onAfterAdd = () => {} }) => {
       });
     createRoom(id, "Welcome", "text");
     onAfterAdd(id);
+    onClose();
   }
 
   return (

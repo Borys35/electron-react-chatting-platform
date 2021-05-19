@@ -51,12 +51,17 @@ export default function Communities() {
     (async () => {
       let query;
       if (!activeCategory)
-        query = firestore.collection("servers").orderBy("name").limit(10);
+        query = firestore
+          .collection("servers")
+          .orderBy("name")
+          .where("isPrivate", "==", false)
+          .limit(10);
       else
         query = firestore
           .collection("servers")
           .where("category", "==", activeCategory)
           .orderBy("name")
+          .where("isPrivate", "==", false)
           .limit(10);
 
       const docs = (await query.get()).docs;
@@ -99,6 +104,7 @@ export default function Communities() {
         .collection("servers")
         .orderBy("name")
         .startAfter(serverDocs[serverDocs.length - 1])
+        .where("isPrivate", "==", false)
         .limit(10);
     else
       query = firestore
@@ -106,6 +112,7 @@ export default function Communities() {
         .where("category", "==", activeCategory)
         .orderBy("name")
         .startAfter(serverDocs[serverDocs.length - 1])
+        .where("isPrivate", "==", false)
         .limit(10);
 
     const docs = (await query.get()).docs;

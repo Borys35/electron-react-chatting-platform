@@ -23,16 +23,18 @@ const CreateRoomModal: FC<Props> = ({
   onRequestClose = () => {},
   serverId,
 }) => {
-  const { handleSubmit, register } = useForm();
+  const { handleSubmit, register, reset } = useForm();
 
   function handleCreate({ name, type }: any) {
     createRoom(serverId, name, type);
+    onRequestClose();
   }
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={() => onRequestClose()}
+      onAfterClose={() => reset()}
       closeTimeoutMS={theme.modalCloseTimeoutMS}
     >
       <Container>
@@ -42,7 +44,12 @@ const CreateRoomModal: FC<Props> = ({
             label="Name"
             inputProps={register("name", { required: true })}
           />
-          <Field label="Type" type="select" inputProps={register("type")}>
+          <Field
+            label="Type"
+            type="select"
+            inputProps={register("type", { required: true })}
+          >
+            <option value="">Select type...</option>
             <option value="text">Text</option>
             <option value="voice">Voice</option>
           </Field>

@@ -63,7 +63,13 @@ export default function Home() {
               Download
             </Button>
           )}
-          <Button variant="secondary" size="md">
+          <Button
+            as="a"
+            variant="secondary"
+            size="md"
+            href="https://github.com/Borys35/electron-react-chatting-platform"
+            target="_blank"
+          >
             Source code
           </Button>
         </div>

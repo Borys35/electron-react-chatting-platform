@@ -50,7 +50,10 @@ const RoomModal: FC<Props> = ({
     >
       <Container>
         <Form
-          onSubmit={handleSubmit((data: any) => onUpdate(data))}
+          onSubmit={handleSubmit((data: any) => {
+            onUpdate(data);
+            onRequestClose();
+          })}
           style={{
             paddingBottom: "1.5rem",
             borderBottom: `1px solid ${theme.colors.background200}`,
@@ -64,7 +67,13 @@ const RoomModal: FC<Props> = ({
           <Button>Update</Button>
         </Form>
         <div>
-          <Button variant="danger" onClick={() => onDelete()}>
+          <Button
+            variant="danger"
+            onClick={() => {
+              onDelete();
+              onRequestClose();
+            }}
+          >
             Delete
           </Button>
         </div>

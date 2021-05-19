@@ -82,7 +82,7 @@ const Conversation: FC<Props> = ({ accessId, type, ...props }) => {
       });
   }
 
-  if (!conversation) return <div>No conversation found</div>;
+  if (!conversation) return <div></div>;
 
   return (
     <Container {...props}>

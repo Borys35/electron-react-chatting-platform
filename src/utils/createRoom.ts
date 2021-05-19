@@ -6,6 +6,7 @@ async function createRoom(
   roomName: string,
   roomType: "text" | "voice"
 ) {
+  console.log("type", roomType);
   // OLD APPROUCH
   //const { id } = firestore.collection("generate-id").doc();
 

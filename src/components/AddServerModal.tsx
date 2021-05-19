@@ -29,8 +29,8 @@ const AddServerModal: FC<Props> = ({
       closeTimeoutMS={theme.modalCloseTimeoutMS}
     >
       <Container>
-        <CreateServerForm onAfterAdd={onAfterAdd} />
-        <JoinServerForm onAfterAdd={onAfterAdd} />
+        <CreateServerForm onAfterAdd={onAfterAdd} onClose={onRequestClose} />
+        <JoinServerForm onAfterAdd={onAfterAdd} onClose={onRequestClose} />
       </Container>
     </Modal>
   );

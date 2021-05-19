@@ -10,15 +10,20 @@ import { FC } from "react";
 
 interface Props {
   onAfterAdd?: Function;
+  onClose?: Function;
 }
 
-const JoinServerForm: FC<Props> = ({ onAfterAdd = () => {} }) => {
+const JoinServerForm: FC<Props> = ({
+  onAfterAdd = () => {},
+  onClose = () => {},
+}) => {
   const { user } = useAuth();
   const { register, handleSubmit } = useForm();
 
   async function handleJoin({ id }: any) {
     joinServer(id, user);
     onAfterAdd(id);
+    onClose();
   }
 
   return (
