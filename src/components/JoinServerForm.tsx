@@ -28,7 +28,7 @@ const JoinServerForm: FC<Props> = ({
 
   return (
     <Form onSubmit={handleSubmit(handleJoin)}>
-      <h6>Join Server</h6>
+      <h5>Join Server</h5>
       <Field label="Server's ID" inputProps={register("id")} />
       <Button>Join</Button>
     </Form>

@@ -6,6 +6,7 @@ const Button = styled.button<{
   size?: "sm" | "md" | "lg";
 }>`
   display: inline-block;
+  font-weight: 600;
   font-size: ${({ size = "sm" }) => {
     switch (size) {
       case "sm":
@@ -41,7 +42,7 @@ const Button = styled.button<{
   border: none;
   outline: none;
   cursor: pointer;
-  transition: opacity 0.1s;
+  transition: opacity 0.1s, background-color 0.05s;
 
   &:disabled {
     opacity: 0.6;

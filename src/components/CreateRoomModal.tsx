@@ -25,8 +25,8 @@ const CreateRoomModal: FC<Props> = ({
 }) => {
   const { handleSubmit, register, reset } = useForm();
 
-  function handleCreate({ name, type }: any) {
-    createRoom(serverId, name, type);
+  function handleCreate({ name }: any) {
+    createRoom(serverId, name);
     onRequestClose();
   }
 
@@ -39,20 +39,11 @@ const CreateRoomModal: FC<Props> = ({
     >
       <Container>
         <Form onSubmit={handleSubmit(handleCreate)}>
-          <h6>Create Room</h6>
+          <h5>Create Room</h5>
           <Field
             label="Name"
             inputProps={register("name", { required: true })}
           />
-          <Field
-            label="Type"
-            type="select"
-            inputProps={register("type", { required: true })}
-          >
-            <option value="">Select type...</option>
-            <option value="text">Text</option>
-            <option value="voice">Voice</option>
-          </Field>
           <Button>Create</Button>
         </Form>
       </Container>

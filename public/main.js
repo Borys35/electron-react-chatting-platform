@@ -11,6 +11,8 @@ function createWindow() {
     height: 600,
     minWidth: 800,
     minHeight: 600,
+    autoHideMenuBar: true,
+    icon: "public/logo.png",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -31,11 +33,13 @@ function createWindow() {
 
 function createTray() {
   // Create tray.
-  const icon = nativeImage.createFromPath(
-    path.join(__dirname, "public/favicon.ico")
-  );
+  const icon = nativeImage.createFromPath("public/logo.png");
   tray = new Tray(icon);
   const contextMenu = Menu.buildFromTemplate([
+    { label: "Realtime Chat JS", icon: "public/logo.png" },
+    { type: "separator" },
+    { label: "About", role: "about" },
+    { type: "separator" },
     {
       label: "Quit",
       click: () => {

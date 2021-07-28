@@ -22,7 +22,6 @@ const Wrapper = styled.div`
 
 const Label = styled.label`
   font-size: 1rem;
-  margin-bottom: 0.2em;
 `;
 
 const Field: FC<Props> = React.forwardRef(

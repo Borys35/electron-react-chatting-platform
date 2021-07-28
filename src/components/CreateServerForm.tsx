@@ -45,14 +45,14 @@ const CreateServerForm: FC<Props> = ({
           photoURL: "https://picsum.photos/id/101/200",
         }),
       });
-    createRoom(id, "Welcome", "text");
+    createRoom(id, "Welcome");
     onAfterAdd(id);
     onClose();
   }
 
   return (
     <Form onSubmit={handleSubmit(handleCreate)}>
-      <h6>Create Server</h6>
+      <h5>Create Server</h5>
       <Field label="Name" inputProps={register("name", { required: true })} />
       <Field
         label="Description"

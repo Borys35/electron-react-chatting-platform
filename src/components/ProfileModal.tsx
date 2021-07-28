@@ -84,7 +84,7 @@ const ProfileModal: FC<Props> = ({ isOpen, onRequestClose = () => {} }) => {
             type="password"
           />
           <Field
-            label={"Old password *"}
+            label={"Old password (required)"}
             inputProps={register("oldPassword")}
             type="password"
           />
@@ -92,8 +92,12 @@ const ProfileModal: FC<Props> = ({ isOpen, onRequestClose = () => {} }) => {
         </Form>
         <ListWrapper>
           <Avatar size="lg" imageSrc={user.database.photoURL} />
-          <p>Username: {user.database.username}</p>
-          <p>E-mail: {hideEmail(user.auth.email)}</p>
+          <p>
+            Username: <strong>{user.database.username}</strong>
+          </p>
+          <p>
+            E-mail: <strong>{hideEmail(user.auth.email)}</strong>
+          </p>
           <Button variant="secondary" onClick={() => signOut()}>
             Sign out
           </Button>

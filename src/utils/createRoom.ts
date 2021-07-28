@@ -1,12 +1,7 @@
 import firebase from "firebase";
 import { firestore } from "../lib/firebase";
 
-async function createRoom(
-  serverId: string,
-  roomName: string,
-  roomType: "text" | "voice"
-) {
-  console.log("type", roomType);
+async function createRoom(serverId: string, roomName: string) {
   // OLD APPROUCH
   //const { id } = firestore.collection("generate-id").doc();
 
@@ -28,15 +23,13 @@ async function createRoom(
     .collection("rooms")
     .add({
       name: roomName,
-      type: roomType,
     });
 
-  if (roomType === "text")
-    await firestore.collection("conversations").add({
-      type: "textRoom",
-      accessIds: [id],
-      messages: [],
-    });
+  await firestore.collection("conversations").add({
+    type: "textRoom",
+    accessIds: [id],
+    messages: [],
+  });
 }
 
 export default createRoom;

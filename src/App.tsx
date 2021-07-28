@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC } from "react";
 import {
   BrowserRouter as Router,
   Redirect,
@@ -18,7 +18,6 @@ import { useAuth } from "./providers/AuthProvider";
 import FriendsServersProvider from "./providers/FriendsServersProvider";
 import NotFound from "./views/NotFound";
 import Modal from "react-modal";
-import { firestore } from "./lib/firebase";
 import { IconContext } from "react-icons/lib";
 
 Modal.setAppElement("#root");
@@ -39,39 +38,7 @@ const PublicOnlyRoute: FC<RouteProps> = ({ component, ...props }) => {
 };
 
 function App() {
-  const { user, loading } = useAuth();
-
-  // useEffect(() => {
-  //   if (loading) return;
-
-  //   firestore.collection("users").doc(user.auth.uid).update({ online: true });
-  //   window.onbeforeunload = () => {
-  //     firestore
-  //       .collection("users")
-  //       .doc(user.auth.uid)
-  //       .update({ online: false });
-  //   };
-
-  //   return () => {
-  //     if (loading) return;
-  //   };
-  // }, [loading]);
-
-  useEffect(() => {
-    (async () => {
-      const data = (
-        await firestore.collection("tests").doc("test1").get()
-      ).data();
-      const data1 = (
-        await firestore
-          .collection("tests")
-          .doc("test1")
-          .collection("testCol")
-          .get()
-      ).docs;
-      console.log("data", data1);
-    })();
-  }, []);
+  const { loading } = useAuth();
 
   if (loading) return <div>Initializing...</div>;
 

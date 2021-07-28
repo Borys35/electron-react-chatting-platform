@@ -17,19 +17,22 @@ const FriendsServersProvider: FC = ({ children }) => {
   const history = useHistory();
   const { user } = useAuth();
 
-  const [currentFriendId, setCurrentFriendId] = useState("404");
-  const [currentServerId, setCurrentServerId] = useState("404");
+  const [currentFriendId, setCurrentFriendId] = useState("none");
+  const [currentServerId, setCurrentServerId] = useState("none");
 
   function openCurrentFriend() {
     history.push(`/friends/${currentFriendId}`);
   }
+
   function changeCurrentFriend(id: string) {
     setCurrentFriendId(id);
     history.push(`/friends/${id}`);
   }
+
   function openCurrentServer() {
     history.push(`/servers/${currentServerId}`);
   }
+
   function changeCurrentServer(id: string) {
     setCurrentServerId(id);
     history.push(`/servers/${id}`);
@@ -38,8 +41,8 @@ const FriendsServersProvider: FC = ({ children }) => {
   useEffect(() => {
     if (!user) return;
 
-    setCurrentFriendId(user.database.friends[0]?.uid || "404");
-    setCurrentServerId(user.database.servers[0]?.id || "404");
+    setCurrentFriendId(user.database.friends[0]?.uid || "none");
+    setCurrentServerId(user.database.servers[0]?.id || "none");
   }, [user]);
 
   const value = {

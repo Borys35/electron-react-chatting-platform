@@ -56,18 +56,12 @@ export default function Servers() {
   });
   const {
     localStream,
-    remoteStreams,
-    connected,
+    remoteStream,
+    callId,
     initStreams,
     makeOffer,
     makeAnswer,
   } = useWebRTC();
-
-  // useEffect(() => {
-  //   if (loading || !server?.exists) return setRoomId("");
-  //   if (!server.rooms.length) return setRoomId("");
-  //   setRoomId(server.rooms[0].id);
-  // }, [server]);
 
   useEffect(() => {
     if (serverLoading || roomsLoading) return;
@@ -77,22 +71,12 @@ export default function Servers() {
     setRoomId(rooms[0].id);
   }, [server, serverLoading, rooms, roomsLoading]);
 
-  // async function handleChangeServer(id: string) {
-  //   const server = await firestore.collection("servers").doc(id).get();
-
-  //   // setActiveId(id);
-  //   setCurrentServer(server.data());
-
-  //   if (server.data()?.rooms.length) setRoomId(server.data()?.rooms[0].id);
-  //   else setRoomId("");
-  // }
-
   function handleChangeRoom(id: string) {
     setRoomId(id);
   }
 
   async function handleJoinVoiceRoom(id: string) {
-    if (connected) return;
+    if (!callId) return;
 
     await initStreams();
 

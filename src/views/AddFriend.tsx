@@ -120,6 +120,7 @@ export default function AddFriend() {
       .update({
         friends: firebase.firestore.FieldValue.arrayUnion({
           ...to,
+          callId: id,
         }),
       });
     firestore
@@ -128,6 +129,7 @@ export default function AddFriend() {
       .update({
         friends: firebase.firestore.FieldValue.arrayUnion({
           ...from,
+          callId: id,
         }),
       });
     firestore.collection("conversations").add({

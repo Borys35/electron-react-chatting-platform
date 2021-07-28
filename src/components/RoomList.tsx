@@ -67,41 +67,21 @@ const RoomList: FC<Props> = ({
           onClick={() => setIsCreateModalOpen(true)}
         />
       )}
-      {values.map(({ id, name, type }: any) => (
-        <>
-          {type === "text" ? (
-            <StandardItem
-              key={id}
-              text={name}
-              icon={FaHashtag}
-              active={id === roomId}
-              onClick={() => onTextRoomClick(id)}
-              subIcons={[
-                {
-                  iconComponent: FaCog,
-                  onClick: () => setSettingsModalId(id),
-                  show: isOwner,
-                },
-              ]}
-            />
-          ) : (
-            type === "voice" && (
-              <div key={id}>
-                <StandardItem
-                  text={name}
-                  icon={FaVolumeDown}
-                  active={id === roomId}
-                  onClick={() => onVoiceRoomClick(id)}
-                />
-                <ItemWithImage
-                  text="User"
-                  imageSrc="https://picsum.photos/id/2/200"
-                  style={{ marginLeft: "32px", marginTop: "12px" }}
-                />
-              </div>
-            )
-          )}
-        </>
+      {values.map(({ id, name }: any) => (
+        <StandardItem
+          key={id}
+          text={name}
+          icon={FaHashtag}
+          active={id === roomId}
+          onClick={() => onTextRoomClick(id)}
+          subIcons={[
+            {
+              iconComponent: FaCog,
+              onClick: () => setSettingsModalId(id),
+              show: isOwner,
+            },
+          ]}
+        />
       ))}
       <CreateRoomModal
         isOpen={isCreateModalOpen}

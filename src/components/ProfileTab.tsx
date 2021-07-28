@@ -29,7 +29,7 @@ const Wrapper = styled.div`
 const ProfileTab = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
-  const { connected, hangUp } = useWebRTC();
+  const { callId, hangUp } = useWebRTC();
 
   return (
     <div>
@@ -44,30 +44,11 @@ const ProfileTab = () => {
           {
             iconComponent: FaPhoneSlash,
             onClick: () => hangUp(),
-            show: connected,
+            show: Boolean(callId),
           },
           { iconComponent: FaCog, onClick: () => setIsOpen(true) },
         ]}
       />
-      {/* <Wrapper>
-        <Avatar
-          imageSrc={user.database.photoURL}
-          size="md"
-          showStatus={true}
-          online={true}
-        />
-        <p>{user.database.username}</p>
-      </Wrapper>
-      <IconContainer
-        icons={[
-          {
-            iconComponent: FaPhoneSlash,
-            onClick: () => hangUp(),
-            show: connected,
-          },
-          { iconComponent: FaCog, onClick: () => setIsOpen(true) },
-        ]}
-      /> */}
       <ProfileModal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} />
     </div>
   );

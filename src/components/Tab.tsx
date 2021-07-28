@@ -31,12 +31,16 @@ const Wrapper = styled.div`
   }
 `;
 
+const Name = styled.p`
+  font-weight: bold;
+`;
+
 const Tab: FC<Props> = ({ avatarProps, name, icons }) => {
   return (
     <Container>
       <Wrapper>
         <Avatar {...avatarProps} />
-        <p>{name}</p>
+        <Name>{name}</Name>
       </Wrapper>
       <IconContainer icons={icons} />
     </Container>

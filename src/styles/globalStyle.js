@@ -3,7 +3,7 @@ import theme from "./theme";
 
 const GlobalStyle = createGlobalStyle`
   // @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
   ::-webkit-scrollbar {
     width: 8px;               /* width of the entire scrollbar */

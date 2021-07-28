@@ -6,6 +6,7 @@ const StyledTextarea = styled(Input)`
   resize: vertical;
   max-height: 200px;
   min-height: 3rem;
+  width: 100%;
 `;
 
 const Textarea: FC = ({ children, ...props }) => {
